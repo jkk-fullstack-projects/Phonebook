@@ -54,7 +54,6 @@ const App = () => {
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4 text-gray-900">Phonebook</h2>
-      <h4 className="text-l font-bold mb-4 text-gray-900">Show names beginning with:</h4>
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className="text-l font-bold mb-4 text-gray-900">Add new name</h4>
       <EntryForm
