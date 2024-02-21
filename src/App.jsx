@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
 import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
-import SearchForm from './components/SearchForm.jsx';
+import SearchForm from './components/SearchForm.jsx'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Artoo Detoo',
-      number: '42-02' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('') 
   const [newNumber, setNewNumber] = useState('')
   const [filterNames, setFilternames] = useState('')
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
 
   const findNameFromPersons = (newName) => {
     let foundOrNot = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
@@ -42,7 +51,6 @@ const App = () => {
   };
 
   const handleFilterChange = (event) => {
-    console.log("filtteri", event.target.value)
     setFilternames(event.target.value)
   }
 
@@ -50,7 +58,6 @@ const App = () => {
     person => person.name.toLowerCase().includes(filterNames.toLowerCase())
   )
 
-  console.log(filteredPersons)
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4 text-gray-900">Phonebook</h2>
@@ -63,7 +70,7 @@ const App = () => {
         newNumber={newNumber}
         handleNumberChange={handleNumberChange}
       />
-      <h2 className="text-l font-semibold mt-6 mb-2 text-gray-800">Numbers</h2>
+      <h4 className="text-l font-semibold mt-6 mb-2 text-gray-800">Numbers</h4>
       <Persons persons={filteredPersons} />     
     </div>
   );
