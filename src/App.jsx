@@ -4,7 +4,7 @@ import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
 import SearchForm from './components/SearchForm.jsx'
 import PersonCRUD from './services/PersonCRUD.jsx'
-import { confirmAndUpdatePerson, addNewPerson, handleDeletePerson } from './services/PersonOperations.jsx'
+import { confirmAndUpdatePerson, addNewPerson, deletePerson } from './services/PersonOperations.jsx'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -55,8 +55,8 @@ const App = () => {
   const handleFilterChange = (event) => {
     setFilternames(event.target.value)};
 
-  const deletePerson = (id) => {
-    handleDeletePerson(id, setPersons);};
+  const handleDeletePerson = (id) => {
+    deletePerson(id, setPersons);};
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
     person => person.name.toLowerCase().includes(filterNames.toLowerCase()));
@@ -77,7 +77,7 @@ const App = () => {
       <h4 className="text-l font-semibold mt-6 mb-2 text-gray-800">Numbers</h4>
       <Persons 
         persons={filteredPersons} 
-        deletePerson={deletePerson}/>     
+        deletePerson={handleDeletePerson}/>     
     </div>
   )
 };

@@ -1,4 +1,3 @@
-// PersonOperations.js
 import axios from 'axios';
 const baseUrl = 'http://localhost:3001/persons';
 
@@ -33,7 +32,7 @@ export const confirmAndUpdatePerson = (existingPerson, personObject, setPersons,
 };
 
 // Delete a person
-export const handleDeletePerson = (id, setPersons) => {
+export const deletePerson = (id, setPersons) => {
   const isConfirmed = window.confirm('Are you sure you want to delete this person?');
   if (isConfirmed) {
     axios.delete(`${baseUrl}/${id}`)
