@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 
 import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
@@ -38,15 +37,18 @@ const App = () => {
     if (findNameFromPersons(newName)) {
       alert(`${newName} exists already`)
     } else {
-      axios
-        .post('http://localhost:3001/persons', personObject)
+      PersonCRUD.create(personObject)
         .then(response => {
-          console.log(response)
+          setPersons(persons.concat(response.data));
+          setNewName('')
+          setNewNumber('')
         })
-      setNewName('')
-      setNewNumber('')
+        .catch(error => {
+          console.log(error);
+          alert('There was an error adding the person');
+      });
     }
-  };
+  }
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
