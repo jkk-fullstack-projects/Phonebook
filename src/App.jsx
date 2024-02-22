@@ -4,83 +4,63 @@ import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
 import SearchForm from './components/SearchForm.jsx'
 import PersonCRUD from './services/PersonCRUD.jsx'
+import { confirmAndUpdatePerson, addNewPerson, handleDeletePerson } from './services/PersonOperations.jsx'
 
 const App = () => {
-  const [persons, setPersons] = useState([]) 
-  const [newName, setNewName] = useState('') 
-  const [newNumber, setNewNumber] = useState('')
-  const [filterNames, setFilternames] = useState('')
+  const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState('');
+  const [newNumber, setNewNumber] = useState('');
+  const [filterNames, setFilternames] = useState('');
 
   useEffect(() => {
-    console.log('effect')
-    PersonCRUD
-      .getAll()
+    PersonCRUD.getAll()
       .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(response.data);
       })
-  }, [])
+      .catch(error => console.error('Error fetching persons:', error));
+  }, []);
+
   console.log('render', persons.length, 'persons')
 
-  const findNameFromPersons = (newName) => {
-    let foundOrNot = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
-    return foundOrNot;
-  };
-
   const addPerson = (event) => {
-    event.preventDefault()
-    const personObject = {
-      name: newName,
-      number: newNumber
-    };
+    event.preventDefault();
+    const personObject = { 
+      name: newName, 
+      number: newNumber };
+    const existingPerson = persons.find(person => 
+      person.name.toLowerCase() === newName.toLowerCase());
 
-    if (findNameFromPersons(newName)) {
-      alert(`${newName} exists already`)
+    if (existingPerson) {
+      confirmAndUpdatePerson(
+        existingPerson,
+        personObject,
+        setPersons,
+        setNewName,
+        setNewNumber);
     } else {
-      PersonCRUD.create(personObject)
-        .then(response => {
-          setPersons(persons.concat(response.data));
-          setNewName('')
-          setNewNumber('')
-        })
-        .catch(error => {
-          console.log(error);
-          alert('There was an error adding the person');
-      });
+      addNewPerson(
+        personObject,
+        setPersons,
+        setNewName,
+        setNewNumber);
     }
-  }
+  };
 
   const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  };
+    setNewName(event.target.value)};
   
   const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  };
+    setNewNumber(event.target.value)};
 
   const handleFilterChange = (event) => {
-    setFilternames(event.target.value)
-  }
+    setFilternames(event.target.value)};
 
-  const handleDeletePerson = (id) => {
-    const person = persons.find(person => person.id === id);
-    const confirmDelete = window.confirm(`Delete ${person.name}?`)
-
-    if (confirmDelete) {
-    PersonCRUD.removeName(id)
-        .then(() => {
-          setPersons(persons.filter(person => person.id !== id))
-        })
-        .catch(error => {
-          alert(`The person '${person.name}' was already deleted from the server `, error);
-          setPersons(persons.filter(person => person.id !== id));
-        });
-    }
-  };
+  const deletePerson = (id) => {
+    handleDeletePerson(id, setPersons);};
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
-    person => person.name.toLowerCase().includes(filterNames.toLowerCase())
-  )
+    person => person.name.toLowerCase().includes(filterNames.toLowerCase()));
+
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
@@ -97,9 +77,10 @@ const App = () => {
       <h4 className="text-l font-semibold mt-6 mb-2 text-gray-800">Numbers</h4>
       <Persons 
         persons={filteredPersons} 
-        deletePerson={handleDeletePerson}/>     
+        deletePerson={deletePerson}/>     
     </div>
-  );
+  )
 };
+
 
 export default App;
