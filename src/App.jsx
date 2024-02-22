@@ -59,7 +59,7 @@ const App = () => {
     deletePerson(id, setPersons);};
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
-    person => person.name.toLowerCase().includes(filterNames.toLowerCase()));
+    person => person.name.toLowerCase().startsWith(filterNames.toLowerCase()));
 
 
   return (
