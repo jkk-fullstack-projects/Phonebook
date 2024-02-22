@@ -20,8 +20,6 @@ const App = () => {
       .catch(error => console.error('Error fetching persons:', error));
   }, []);
 
-  console.log('render', persons.length, 'persons')
-
   const handleAddPerson = (event) => {
     event.preventDefault();
     const personObject = { 
