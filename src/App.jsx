@@ -22,7 +22,7 @@ const App = () => {
 
   console.log('render', persons.length, 'persons')
 
-  const addPerson = (event) => {
+  const handleAddPerson = (event) => {
     event.preventDefault();
     const personObject = { 
       name: newName, 
@@ -68,7 +68,7 @@ const App = () => {
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className="text-l font-bold mb-2 text-gray-900">Add new name</h4>
       <EntryForm
-        addPerson={addPerson}
+        addPerson={handleAddPerson}
         newName={newName}
         handleNameChange={handleNameChange}
         newNumber={newNumber}
