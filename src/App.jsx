@@ -5,12 +5,15 @@ import Persons from './components/Persons.jsx'
 import SearchForm from './components/SearchForm.jsx'
 import PersonCRUD from './services/PersonCRUD.jsx'
 import { confirmAndUpdatePerson, addNewPerson, deletePerson } from './services/PersonOperations.jsx'
+import './index.css'
+import Notification from './utilities/Notification.jsx'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterNames, setFilternames] = useState('');
+  const [errorMessage, setErrorMessage] = useState('error occurred...')
 
   useEffect(() => {
     PersonCRUD.getAll()
@@ -58,7 +61,7 @@ const App = () => {
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
     person => person.name.toLowerCase().startsWith(filterNames.toLowerCase()));
-
+// Huom!
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
