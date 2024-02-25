@@ -1,19 +1,19 @@
 import axios from 'axios';
-import Notification from '../utilities/Notification';
 const baseUrl = 'http://localhost:3001/persons';
 
 // Add a new person
-export const addNewPerson = (personObject, setPersons, setNewName, setNewNumber) => {
-  axios.post(baseUrl, personObject)
+export const addNewPerson = (personObject, setPersons) => {
+  return new Promise((resolve, reject) => {
+    axios.post(baseUrl, personObject)
     .then(response => {
       setPersons(prevPersons => [...prevPersons, response.data]);
-      setNewName('');
-      setNewNumber('');
-    })
+      resolve(`Added '${response.data.name}' successfully`); 
+  })
     .catch(error => {
       console.error('There was an error adding the person:', error);
-      alert('There was an error adding the person');
+      reject(new Error('There was an error adding the person'));
     });
+});
 };
 
 // Update an existing person's number
@@ -38,20 +38,18 @@ export const deletePerson = (id, setPersons) => {
     if (isConfirmed) {
       axios.delete(`${baseUrl}/${id}`)
         .then(() => {
-          setPersons(prevPersons => 
-            prevPersons.filter(person => person.id !== id));
-            console.log(`Deleting person with ID ${id}: Promise is fulfilled`);
-          resolve();
+          setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+          console.log(`Deleting person with ID ${id}: Promise is fulfilled`);
+          resolve('Deleted successfully'); // Make sure to resolve with a message
         })
         .catch(error => {
           console.error('Error deleting the person:', error);
           console.log(`Deleting person with ID ${id}: Promise is rejected`);
-          reject(error);
+          reject(new Error('Error deleting the person'));
         });
     } else {
-      // Resolve the promise even if the user cancels the deletion
       console.log(`Deletion canceled for ID ${id}: Promise is resolved without deletion`);
-      resolve();
+      resolve('Deletion canceled'); // Resolve with cancellation message if needed
     }
   });
 };

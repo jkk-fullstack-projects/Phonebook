@@ -4,7 +4,7 @@ import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
 import SearchForm from './components/SearchForm.jsx'
 import PersonCRUD from './services/PersonCRUD.jsx'
-import { confirmAndUpdatePerson, addNewPerson, deletePerson } from './services/PersonOperations.jsx'
+import { addNewPerson, deletePerson } from './services/PersonOperations.jsx'
 import './index.css'
 import Notification from './utilities/Notification.jsx'
 
@@ -13,7 +13,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterNames, setFilternames] = useState('');
-  const [errorMessage, setErrorMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState({ message: '', msgType: 'success' });
 
   useEffect(() => {
     PersonCRUD.getAll()
@@ -23,10 +23,10 @@ const App = () => {
       .catch(error => console.error('Error fetching persons:', error));
   }, []);
 
-  const displayMessage = (msg, timeout = 2000) => {
-    setErrorMessage(msg);
+  const displayMessage = (msg, msgType = 'success', timeout = 3000) => {
+    setErrorMessage({ message: msg, msgType: msgType }); // Update both message and type
     setTimeout(() => {
-      setErrorMessage('');
+      setErrorMessage({ message: '', msgType: 'success' }); // Clear message after timeout
     }, timeout);
   };
 
@@ -35,24 +35,18 @@ const App = () => {
     const personObject = { 
       name: newName, 
       number: newNumber };
-    const existingPerson = persons.find(person => 
-      person.name.toLowerCase() === newName.toLowerCase());
-
-    if (existingPerson) {
-      confirmAndUpdatePerson(
-        existingPerson,
-        personObject,
-        setPersons,
-        setNewName,
-        setNewNumber);
-    } else {
-      addNewPerson(
-        personObject,
-        setPersons,
-        setNewName,
-        setNewNumber);
-    }
+    addNewPerson(personObject, setPersons)
+    .then((successMessage) => {
+      setNewName('');
+      setNewNumber('');
+      displayMessage(successMessage, 'success', 3000)
+    })
+    .catch((errorMessage) => {
+      console.errot(errorMessage);
+      displayMessage(errorMessage.toString(), 'error', 3000)
+    });
   };
+  
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)};
@@ -67,29 +61,25 @@ const App = () => {
     PersonCRUD.getAll()
       .then(response => {
         setPersons(response.data);
-        // Optionally, show a message that the list has been updated
         displayMessage('List updated.', 3000);
       })
       .catch(error => {
         console.error('Error fetching the latest persons list:', error);
-        // Handle fetch error, e.g., by showing an error message
       });
   };
 
   const handleDeletePerson = (id) => {
     deletePerson(id, setPersons)
-    .then (() => {
-      displayMessage('Deleted successfully', 5000);
-    })
-    .catch(error => {
-      console.error(error)
-      displayMessage(
-        'Error deleting, person may have already been removed. Refreshing Numbers -list:',
-        5000);
-        setTimeout(() => {
-          fetchLatestPersonsList();
-        }, 3000); // Wait 3 seconds before refreshing
-    });
+      .then((successMessage) => {
+        // Handle successful deletion
+        console.log(successMessage); // Log or use the success message as needed
+        displayMessage(successMessage, 'success', 3000); // Display success message
+      })
+      .catch((error) => {
+        // Handle deletion error
+        console.error(error);
+        displayMessage('Error deleting, person may have already been removed.', 'error', 3000);
+      });
   };
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
@@ -98,7 +88,7 @@ const App = () => {
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mt-4 mb-4 text-gray-900">Phonebook</h2>
-      <Notification message={errorMessage}/>
+      <Notification message={errorMessage.message} msgType={errorMessage.msgType} />
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className="text-l font-bold mb-2 text-gray-900">Add new name</h4>
       <EntryForm
