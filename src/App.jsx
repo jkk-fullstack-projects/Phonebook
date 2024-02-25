@@ -13,7 +13,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterNames, setFilternames] = useState('');
-  const [errorMessage, setErrorMessage] = useState('error occurred...')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     PersonCRUD.getAll()
@@ -22,6 +22,13 @@ const App = () => {
       })
       .catch(error => console.error('Error fetching persons:', error));
   }, []);
+
+  const displayMessage = (msg, timeout = 2000) => {
+    setErrorMessage(msg);
+    setTimeout(() => {
+      setErrorMessage('');
+    }, timeout);
+  };
 
   const handleAddPerson = (event) => {
     event.preventDefault();
@@ -56,16 +63,42 @@ const App = () => {
   const handleFilterChange = (event) => {
     setFilternames(event.target.value)};
 
+  const fetchLatestPersonsList = () => {
+    PersonCRUD.getAll()
+      .then(response => {
+        setPersons(response.data);
+        // Optionally, show a message that the list has been updated
+        displayMessage('List updated.', 3000);
+      })
+      .catch(error => {
+        console.error('Error fetching the latest persons list:', error);
+        // Handle fetch error, e.g., by showing an error message
+      });
+  };
+
   const handleDeletePerson = (id) => {
-    deletePerson(id, setPersons);};
+    deletePerson(id, setPersons)
+    .then (() => {
+      displayMessage('Deleted successfully', 5000);
+    })
+    .catch(error => {
+      console.error(error)
+      displayMessage(
+        'Error deleting, person may have already been removed. Refreshing Numbers -list:',
+        5000);
+        setTimeout(() => {
+          fetchLatestPersonsList();
+        }, 3000); // Wait 3 seconds before refreshing
+    });
+  };
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
     person => person.name.toLowerCase().startsWith(filterNames.toLowerCase()));
-// Huom!
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mt-4 mb-4 text-gray-900">Phonebook</h2>
+      <Notification message={errorMessage}/>
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className="text-l font-bold mb-2 text-gray-900">Add new name</h4>
       <EntryForm

@@ -14,7 +14,7 @@ const update = (id, newObject) => {
     return axios.put(`${baseUrl}/${id}`, newObject)
 };
 
-const removeName = (id) => {
+const removeName = (id,) => {
     return axios.delete(`${baseUrl}/${id}`)
     .then(response => {
         console.log(`deleted person with ID ${id}`, response.data)
