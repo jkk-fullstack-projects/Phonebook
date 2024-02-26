@@ -9,7 +9,7 @@ header: "text-2xl font-bold mt-4 mb-4 text-gray-900",
 };
 
 export const buttonStyles = {
-deleteButton: "py-1 px-3 rounded bg-red-500 hover:bg-red-700 text-white",
+deleteButton: "py-1 px-3 rounded bg-red-500 hover:bg-red-400 text-white",
 showButton: "py-1 px-3 rounded bg-blue-500 hover:bg-blue-700 text-white",
 };
 
@@ -20,4 +20,8 @@ inputField: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-70
 export const listStyles = {
 personList: "bg-blue-200 p-4 rounded-lg divide-y divide-gray-200",
 listItem: "py-2 text-sm font-medium text-gray-900",
+};
+
+export const ulStyles = {
+    ulPerson: "bg-blue-200 p-4 rounded-lg divide-y divide-gray-200",
 };

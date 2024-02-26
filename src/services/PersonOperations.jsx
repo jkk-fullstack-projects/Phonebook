@@ -1,55 +1,68 @@
-import axios from 'axios';
-const baseUrl = 'http://localhost:3001/persons';
+
+import PersonCRUD from './PersonCRUD.jsx';
 
 // Add a new person
 export const addNewPerson = (personObject, setPersons) => {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl, personObject)
-    .then(response => {
-      setPersons(prevPersons => [...prevPersons, response.data]);
-      resolve(`Added '${response.data.name}' successfully`); 
-  })
-    .catch(error => {
-      console.error('There was an error adding the person:', error);
-      reject(new Error('There was an error adding the person'));
-    });
-});
+    PersonCRUD.createName(personObject)
+      .then(response => {
+        setPersons(prevPersons => [...prevPersons, response.data]);
+        resolve(`Added '${response.data.name}' successfully`); 
+    })
+      .catch(error => {
+        console.error('There was an error adding the person:', error);
+        reject(new Error('There was an error adding the person'));
+      });
+  });
 };
 
 // Update an existing person's number
-export const confirmAndUpdatePerson = (existingPerson, personObject, setPersons, setNewName, setNewNumber) => {
-  if (window.confirm(`${existingPerson.name} exists already, do you want to change the number?`)) {
-    axios.put(`${baseUrl}/${existingPerson.id}`, personObject)
-      .then(response => {
-        setPersons(prevPersons => prevPersons.map(person => person.id === existingPerson.id ? response.data : person));
-        setNewName('');
-        setNewNumber('');
-      })
-      .catch(error => {
-        console.error('There was an error updating the person:', error);
-        alert(`There was an error updating ${existingPerson.name}'s number`);
-      });
-  }
-};
-
-export const deletePerson = (id, setPersons) => {
+export const confirmAndUpdatePerson = (existingPerson, personObject, setPersons) => {
   return new Promise((resolve, reject) => {
-    const isConfirmed = window.confirm('Are you sure you want to delete this person?');
-    if (isConfirmed) {
-      axios.delete(`${baseUrl}/${id}`)
-        .then(() => {
-          setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
-          console.log(`Deleting person with ID ${id}: Promise is fulfilled`);
-          resolve('Deleted successfully'); // Make sure to resolve with a message
+    if (window.confirm(`${existingPerson.name} exists already, do you want to change the number?`)) {
+      PersonCRUD.updateName(existingPerson.id, personObject)
+        .then(response => {
+          setPersons(prevPersons => prevPersons.map(person => 
+            person.id === existingPerson.id ? response.data : person));
+          resolve(`Updated '${existingPerson.name}' successfully`);
         })
         .catch(error => {
-          console.error('Error deleting the person:', error);
-          console.log(`Deleting person with ID ${id}: Promise is rejected`);
-          reject(new Error('Error deleting the person'));
+          console.error('There was an error updating the person:', error);
+          reject(new Error(`There was an error updating ${existingPerson.name}'s number`));
         });
     } else {
-      console.log(`Deletion canceled for ID ${id}: Promise is resolved without deletion`);
-      resolve('Deletion canceled'); // Resolve with cancellation message if needed
+      resolve('Update cancelled');
+    }
+  });
+};
+
+// deleting a name from the list, with error handling
+export const deletePerson = (id, name, setPersons) => {
+  return new Promise((resolve, reject) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete ${name}?`);
+    if (isConfirmed) {
+      PersonCRUD.deleteName(id)
+        .then(() => {
+          setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+          resolve(`${name} was successfully deleted.`);
+        })
+        .catch(error => {
+          console.error(`Error deleting ${name}:`, error);
+          // showing the earlier names list before updating according to deletion
+          setTimeout(() => {
+            PersonCRUD.getAll()
+              .then(response => {
+                setPersons(response.data)
+                reject(new Error(`Error deleting ${name}. It may have already been removed.`));
+              })
+              .catch(error => {
+                console.error(`Error fetching the latest persons list: ${error}`)
+              });
+            }, 5000);
+            reject(new Error(`Error deleting ${name}. It may have already been removed. Refreshing list...`))
+        });
+    } else {
+      resolve('Deletion cancelled');
     }
   });
 };

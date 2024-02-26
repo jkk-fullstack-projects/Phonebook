@@ -5,25 +5,11 @@ const getAll = () => {
     return axios.get(baseUrl)
 };
 
-const create = newObject => {
-    return axios.post(baseUrl, newObject)
-};
+const createName = newObject => axios.post(baseUrl, newObject);
 
+const updateName = (id, updatedObject) => axios.put(`${baseUrl}/${id}`, updatedObject);
 
-const update = (id, newObject) => {
-    return axios.put(`${baseUrl}/${id}`, newObject)
-};
-
-const removeName = (id,) => {
-    return axios.delete(`${baseUrl}/${id}`)
-    .then(response => {
-        console.log(`deleted person with ID ${id}`, response.data)
-        return response.data
-    })
-    .catch(error => {
-        console.error('Error in PersonCRUD deleting the person:', error);
-    })
-};
-
-export default{ getAll, create, update, removeName };
+const deleteName = id => axios.delete(`${baseUrl}/${id}`);
+ 
+export default{ getAll, createName, updateName, deleteName };
   

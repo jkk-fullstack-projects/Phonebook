@@ -4,7 +4,7 @@ import EntryForm from './components/EntryForm.jsx'
 import Persons from './components/Persons.jsx'
 import SearchForm from './components/SearchForm.jsx'
 import PersonCRUD from './services/PersonCRUD.jsx'
-import { addNewPerson, deletePerson } from './services/PersonOperations.jsx'
+import { addNewPerson, confirmAndUpdatePerson, deletePerson } from './services/PersonOperations.jsx'
 import './index.css'
 import Notification from './utilities/Notification.jsx'
 import { appStyles } from './styles/PhonebookStyles';
@@ -32,24 +32,39 @@ const App = () => {
     }, timeout);
   };
 
-  const handleAddPerson = (event) => {
+  const handleAddOrUpdatePerson = (event) => {
     event.preventDefault();
     const personObject = { 
       name: newName, 
       number: newNumber };
+    const existingPerson = persons.find(person => 
+      person.name.toLowerCase() === newName.toLowerCase());
+
+    if (existingPerson) {
+      confirmAndUpdatePerson(existingPerson, personObject, setPersons)
+        .then(successMessage => {
+          setNewName('')
+          setNewNumber('')
+          displayMessage(successMessage, 'success')
+        })
+        .catch(errorMessage => {
+          console.error(errorMessage)
+          displayMessage(errorMessage.toString(), 'error')
+        });
+    } else {
     addNewPerson(personObject, setPersons)
-    .then((successMessage) => {
-      setNewName('');
-      setNewNumber('');
-      displayMessage(successMessage, 'success', 3000)
-    })
-    .catch((errorMessage) => {
-      console.errot(errorMessage);
-      displayMessage(errorMessage.toString(), 'error', 3000)
-    });
+      .then((successMessage) => {
+        setNewName('');
+        setNewNumber('');
+        displayMessage(successMessage, 'success', 3000)
+      })
+      .catch((errorMessage) => {
+        console.error(errorMessage);
+        displayMessage(errorMessage.toString(), 'error', 3000)
+      });
+    }
   };
   
-
   const handleNameChange = (event) => {
     setNewName(event.target.value)};
   
@@ -59,28 +74,15 @@ const App = () => {
   const handleFilterChange = (event) => {
     setFilternames(event.target.value)};
 
-  const fetchLatestPersonsList = () => {
-    PersonCRUD.getAll()
-      .then(response => {
-        setPersons(response.data);
-        displayMessage('List updated.', 3000);
-      })
-      .catch(error => {
-        console.error('Error fetching the latest persons list:', error);
-      });
-  };
-
-  const handleDeletePerson = (id) => {
-    deletePerson(id, setPersons)
+  const handleDeletePerson = (id, name) => {
+    console.log(`Deleting: ID = ${id}, Name = ${name}`); // Debug log
+    deletePerson(id, name, setPersons)
       .then((successMessage) => {
-        // Handle successful deletion
-        console.log(successMessage); // Log or use the success message as needed
-        displayMessage(successMessage, 'success', 3000); // Display success message
+        displayMessage(successMessage, 'success', 3000);
       })
-      .catch((error) => {
-        // Handle deletion error
-        console.error(error);
-        displayMessage('Error deleting, person may have already been removed.', 'error', 3000);
+      .catch((errorMessage) => {
+        console.error(errorMessage);
+        displayMessage(errorMessage.toString(), 'error', 5000);
       });
   };
 
@@ -94,7 +96,7 @@ const App = () => {
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className="text-l font-bold mb-2 text-gray-900">Add new name</h4>
       <EntryForm
-        addPerson={handleAddPerson}
+        addPerson={handleAddOrUpdatePerson}
         newName={newName}
         handleNameChange={handleNameChange}
         newNumber={newNumber}

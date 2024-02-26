@@ -1,14 +1,14 @@
 import ShowPerson from "./ShowPerson"
+import { ulStyles } from "../styles/PhonebookStyles.jsx"
 
 const Persons = ({ persons, deletePerson }) => {
     return (
-        <ul className="bg-blue-200 p-4 rounded-lg divide-y divide-gray-200">
-            {persons.map((person, index) =>
-                <li key={index} className="py-2">
+        <ul className={ulStyles.ulPerson}>
+            {persons.map((person) =>
+                <li key={person.id} className="py-2">
                     <ShowPerson 
-                        person={person.name} 
-                        number={person.number} 
-                        handleDeletePerson={() => deletePerson(person.id)}/>
+                        person={person} 
+                        handleDeletePerson={deletePerson}/>
                 </li>
             )}
         </ul>
