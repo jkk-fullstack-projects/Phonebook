@@ -1,5 +1,5 @@
-import ShowPerson from "./ShowPerson"
-import { ulStyles } from "../styles/PhonebookStyles.jsx"
+import ShowPerson from './ShowPerson'
+import { ulStyles } from '../styles/PhonebookStyles.jsx'
 
 const Persons = ({ persons, deletePerson }) => {
     return (

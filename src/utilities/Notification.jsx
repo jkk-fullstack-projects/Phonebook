@@ -1,4 +1,4 @@
-import { notificationStyles } from "../styles/PhonebookStyles";
+import { notificationStyles } from '../styles/PhonebookStyles';
 
 const Notification = ({ message, msgType }) => {
     if (!message) return null
