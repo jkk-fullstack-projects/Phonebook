@@ -11,7 +11,8 @@ export const addNewPerson = (personObject, setPersons) => {
     })
       .catch(error => {
         console.error('There was an error adding the person:', error);
-        reject(new Error('There was an error adding the person'));
+        const message = error.response && error.response.data.error ? error.response.data.error : 'Unknown error';
+        reject(new Error(message));
       });
   });
 };

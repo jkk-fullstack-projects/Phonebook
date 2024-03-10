@@ -25,7 +25,7 @@ const App = () => {
       .catch(error => console.error('Error fetching persons:', error));
   }, []);
 
-  const displayMessage = (msg, msgType = 'success', timeout = 3000) => {
+  const displayMessage = (msg, msgType = 'success', timeout = 10000) => {
     setErrorMessage({ message: msg, msgType: msgType }); // Update both message and type
     setTimeout(() => {
       setErrorMessage({ message: '', msgType: 'success' }); // Clear message after timeout
@@ -42,28 +42,28 @@ const App = () => {
 
     if (existingPerson) {
       confirmAndUpdatePerson(existingPerson, personObject, setPersons)
-        .then(successMessage => {
-          setNewName('')
-          setNewNumber('')
-          displayMessage(successMessage, 'success')
-        })
-        .catch(errorMessage => {
-          console.error(errorMessage)
-          displayMessage(errorMessage.toString(), 'error')
-        });
+      .then(successMessage => {
+        setNewName('')
+        setNewNumber('')
+        displayMessage(successMessage, 'success')
+      })
+      .catch(errorMessage => {
+        console.error(errorMessage)
+        displayMessage(errorMessage.toString(), 'error')
+      });
     } else {
     addNewPerson(personObject, setPersons)
-      .then((successMessage) => {
-        setNewName('');
-        setNewNumber('');
-        displayMessage(successMessage, 'success', 3000)
-      })
-      .catch((errorMessage) => {
-        console.error(errorMessage);
-        displayMessage(errorMessage.toString(), 'error', 3000)
-      });
-    }
-  };
+    .then((successMessage) => {
+      setNewName('');
+      setNewNumber('');
+      displayMessage(successMessage, 'success', 3000)
+    })
+    .catch(error => {
+      const errorMessage = error.response && error.response.data.error ? error.response.data.error : "An error occurred";
+      displayMessage(errorMessage, 'error', 5000);
+    });
+  }
+};
   
   const handleNameChange = (event) => {
     setNewName(event.target.value)};
@@ -77,14 +77,32 @@ const App = () => {
   const handleDeletePerson = (id, name) => {
     console.log(`Deleting: ID = ${id}, Name = ${name}`); // Debug log
     deletePerson(id, name, setPersons)
-      .then((successMessage) => {
-        displayMessage(successMessage, 'success', 3000);
-      })
-      .catch((errorMessage) => {
-        console.error(errorMessage);
-        displayMessage(errorMessage.toString(), 'error', 5000);
-      });
-  };
+    .then((successMessage) => {
+      displayMessage(successMessage, 'success', 3000);
+    })
+    .catch((error) => {
+      let errorMessage = 'An error occurred'; 
+
+      if (error.response && error.response.status === 404) {
+        // If the backend responded with a 404, it means the person was not found.
+        errorMessage = `Error deleting ${name}. It may have already been removed. Refreshing list...`;
+        console.log("virheviesti nyt: ", errorMessage)
+      } else {
+        console.error(error);
+      }
+      displayMessage(errorMessage, 'error', 5000);
+    })
+    .finally(() => {
+      PersonCRUD.getAll()
+        .then(response => {
+          setPersons(response.data); 
+        })
+        .catch(error => {
+          console.error('Error fetching the updated persons list:', error);
+        });
+    });
+};
+
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
     person => person.name.toLowerCase().startsWith(filterNames.toLowerCase()));
