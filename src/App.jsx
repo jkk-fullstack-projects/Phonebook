@@ -108,7 +108,6 @@ const handleDeletePerson = (id, name) => {
   return (
     <div className={appStyles.container}>
       <h2 className={appStyles.header}>Phonebook</h2>
-      <Notification message={errorMessage.message} msgType={errorMessage.msgType} />
       <SearchForm filterNames={filterNames} handleFilterChange={handleFilterChange} /> 
       <h4 className={appStyles.header}>Add new name</h4>
       <EntryForm
@@ -119,6 +118,7 @@ const handleDeletePerson = (id, name) => {
         handleNumberChange={handleNumberChange}
       />
       <h4 className="text-l font-semibold mt-6 mb-2 text-gray-800">Numbers</h4>
+      <Notification message={errorMessage.message} msgType={errorMessage.msgType} />
       <Persons persons={filteredPersons} deletePerson={handleDeletePerson}/>     
     </div>
   )
