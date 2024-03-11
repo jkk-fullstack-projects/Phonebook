@@ -59,9 +59,15 @@ const App = () => {
       displayMessage(successMessage, 'success', 3000)
     })
     .catch(error => {
-      const errorMessage = error.response && error.response.data.error ? error.response.data.error : "An error occurred";
+      console.error("Full error: ", error);
+      let errorMessage = "An error occurred";
+      if (error.response && error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
+      } else if (error.message) {
+          errorMessage = error.message;
+      }
       displayMessage(errorMessage, 'error', 5000);
-    });
+  });
   }
 };
   
