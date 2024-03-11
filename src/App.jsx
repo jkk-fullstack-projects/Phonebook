@@ -74,35 +74,27 @@ const App = () => {
   const handleFilterChange = (event) => {
     setFilternames(event.target.value)};
 
-  const handleDeletePerson = (id, name) => {
-    console.log(`Deleting: ID = ${id}, Name = ${name}`); // Debug log
-    deletePerson(id, name, setPersons)
-    .then((successMessage) => {
+const handleDeletePerson = (id, name) => {
+  console.log(`Deleting: ID = ${id}, Name = ${name}`);
+  deletePerson(id, name, setPersons)
+    .then(successMessage => {
       displayMessage(successMessage, 'success', 3000);
     })
-    .catch((error) => {
-      let errorMessage = 'An error occurred'; 
-
-      if (error.response && error.response.status === 404) {
-        // If the backend responded with a 404, it means the person was not found.
-        errorMessage = `Error deleting ${name}. It may have already been removed. Refreshing list...`;
-        console.log("virheviesti nyt: ", errorMessage)
-      } else {
-        console.error(error);
-      }
+    .catch(error => {
+      const errorMessage = error?.response?.data?.error ?? `Error deleting ${name}. It may have already been removed. Refreshing list...`;
+      console.error(errorMessage);
       displayMessage(errorMessage, 'error', 5000);
     })
     .finally(() => {
       PersonCRUD.getAll()
         .then(response => {
-          setPersons(response.data); 
+          setPersons(response.data);
         })
         .catch(error => {
           console.error('Error fetching the updated persons list:', error);
         });
     });
 };
-
 
   const filteredPersons = filterNames === '' ? persons : persons.filter(
     person => person.name.toLowerCase().startsWith(filterNames.toLowerCase()));
