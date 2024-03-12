@@ -26,9 +26,9 @@ const App = () => {
   }, []);
 
   const displayMessage = (msg, msgType = 'success', timeout = 10000) => {
-    setErrorMessage({ message: msg, msgType: msgType }); // Update both message and type
+    setErrorMessage({ message: msg, msgType: msgType });
     setTimeout(() => {
-      setErrorMessage({ message: '', msgType: 'success' }); // Clear message after timeout
+      setErrorMessage({ message: '', msgType: 'success' });
     }, timeout);
   };
 
